@@ -221,5 +221,19 @@ body .flip .item .inn[data-v-250ac99c] {
   background-color: var(--flip-bg-color) !important;
   color: var(--flip-text-color) !important;
 }
+.zoomContainer,
+.navContainer {
+  transition: transform 0.2s ease;
+  will-change: transform;
+  touch-action: none; /* 防止默认双指缩放 */
+}
+
+.navContainer.fadeOut {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+
 
 

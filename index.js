@@ -1,6 +1,29 @@
-// 动态加载模板
 var myRequest = new Request("/template.html");
 document.write(`<link rel="stylesheet" href="/index.css" />`);
+
+function hideUIAfterDelay(delay = 5000) {
+  clearTimeout(window._hideUITimer);
+  window._hideUITimer = setTimeout(() => {
+    const uiContainer = document.querySelector(".uiContainer");
+    if (uiContainer) {
+      uiContainer.classList.add("fadeOut");
+    }
+  }, delay);
+}
+
+// 用户触发全屏函数
+function enterFullscreen() {
+  const el = document.documentElement;
+  if (el.requestFullscreen) {
+    el.requestFullscreen();
+  } else if (el.webkitRequestFullscreen) {
+    el.webkitRequestFullscreen();
+  } else if (el.msRequestFullscreen) {
+    el.msRequestFullscreen();
+  } else {
+    alert("你的浏览器不支持全屏API");
+  }
+}
 
 fetch(myRequest, {
   method: "GET",
@@ -10,108 +33,91 @@ fetch(myRequest, {
   mode: "cors",
   cache: "default",
 })
-  .then(function (response) {
-    return response.text();
-  })
-  .then(function (myJson) {
+  .then((response) => response.text())
+  .then((myHtml) => {
     var section = document.createElement("section");
-    section.innerHTML = myJson;
+    section.innerHTML = myHtml;
     section.classList.add("displayContainer");
     document.body.appendChild(section);
 
-    // 🔁 通用函数：5 秒后隐藏 UI
-    function hideUIAfterDelay(delay = 5000) {
-      setTimeout(() => {
-        const uiContainer = document.querySelector(".uiContainer");
-        if (uiContainer) {
-          uiContainer.classList.add("fadeOut");
-        }
-      }, delay);
-    }
-
-    // ✅ 页面加载后隐藏 UI
-    hideUIAfterDelay();
-
-    // ✅ 页面加载后 5 秒自动进入全屏
+    // 5秒后提示用户点击进入全屏
     setTimeout(() => {
-      const el = document.documentElement;
-      if (el.requestFullscreen) {
-        el.requestFullscreen();
-      } else if (el.webkitRequestFullscreen) {
-        el.webkitRequestFullscreen();
-      } else if (el.msRequestFullscreen) {
-        el.msRequestFullscreen();
+      if (confirm("点击确定进入全屏模式")) {
+        enterFullscreen();
       }
     }, 5000);
+
+    // 初始隐藏UI
+    hideUIAfterDelay();
 
     // 点击页面切换 UI 显示/隐藏
     document.body.addEventListener("click", () => {
       const uiContainer = document.querySelector(".uiContainer");
-      if (uiContainer) {
-        uiContainer.classList.toggle("fadeOut");
-      }
+      if (!uiContainer) return;
+      uiContainer.classList.toggle("fadeOut");
     });
 
-    // 阻止颜色选择器触发隐藏
+    // 阻止颜色选择器点击事件冒泡
     const colorPicker = document.querySelector(".color-picker-cyber");
     if (colorPicker) {
-      colorPicker.addEventListener("click", (e) => {
-        e.stopPropagation();
-      });
+      colorPicker.addEventListener("click", (e) => e.stopPropagation());
     }
 
-    // 🔍 放大功能
+    // 放大功能
     let zoomScale = 1;
     const zoomBtn = document.querySelector(".handleZoom");
     if (zoomBtn) {
       zoomBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        document.body.style.transform = `scale(${zoomScale})`;
-        document.body.style.transformOrigin = "top left";
         zoomScale += 0.1;
-        if (zoomScale > 2.0) zoomScale = 1.0; // 可选重置缩放
+        if (zoomScale > 3) zoomScale = 1;
+        document.body.style.transformOrigin = "top left";
+        document.body.style.transform = `scale(${zoomScale})`;
       });
     }
 
-    // 🔲 全屏功能
+    // 全屏按钮事件
     const fullscreenBtn = document.querySelector(".fullscreenBtn");
     if (fullscreenBtn) {
       fullscreenBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        const el = document.documentElement;
-        if (el.requestFullscreen) {
-          el.requestFullscreen();
-        } else if (el.webkitRequestFullscreen) {
-          el.webkitRequestFullscreen();
-        } else if (el.msRequestFullscreen) {
-          el.msRequestFullscreen();
-        } else {
-          alert("你的浏览器不支持全屏API");
-        }
+        enterFullscreen();
       });
     }
 
-    // ❌ 退出全屏按钮
+    // 退出全屏按钮事件
     const exitFullscreenBtn = document.querySelector(".exitFullscreenBtn");
     if (exitFullscreenBtn) {
       exitFullscreenBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         if (document.fullscreenElement) {
-          document.exitFullscreen().catch((err) => {
-            console.error("退出全屏失败:", err);
-          });
+          document.exitFullscreen()
+            .catch((err) => {
+              console.error("退出全屏失败:", err);
+            })
+            .finally(() => {
+              hideUIAfterDelay();
+            });
+        } else {
+          hideUIAfterDelay();
         }
-
-        // 重新设置隐藏 UI 定时器
-        hideUIAfterDelay();
       });
     }
 
-    // 🎨 动态背景渐变颜色
+    // 监听全屏状态变化，退出全屏时重新启动隐藏UI计时器
+    document.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement) {
+        // 退出全屏了
+        hideUIAfterDelay();
+      }
+    });
+
+    // 动态背景渐变颜色
     const color1Input = document.getElementById("color1");
     const color2Input = document.getElementById("color2");
 
     function updateBackground() {
+      if (!color1Input || !color2Input) return;
       const c1 = color1Input.value;
       const c2 = color2Input.value;
       const gradient = `linear-gradient(135deg, ${c1} 0%, ${c2} 100%)`;
@@ -121,12 +127,11 @@ fetch(myRequest, {
     if (color1Input && color2Input) {
       color1Input.addEventListener("input", updateBackground);
       color2Input.addEventListener("input", updateBackground);
-      updateBackground(); // 初始背景设置
+      updateBackground();
     }
   })
   .catch((error) => console.error(error));
 
-// 📏 滚动时缩小导航栏
 window.addEventListener("scroll", () => {
   const nav = document.querySelector(".navContainer");
   if (!nav) return;
@@ -137,7 +142,6 @@ window.addEventListener("scroll", () => {
   }
 });
 
-// 🕒 数字时钟初始化
 function updateTime() {
   const now = new Date();
   const hour = String(now.getHours()).padStart(2, "0");

@@ -1,3 +1,4 @@
+// 动态加载模板
 var myRequest = new Request("/template.html");
 document.write(`<link rel="stylesheet" href="/index.css" />`);
 
@@ -18,19 +19,40 @@ fetch(myRequest, {
     section.classList.add("displayContainer");
     document.body.appendChild(section);
 
-    // 🚀 5秒后隐藏 UI（导航栏 + 颜色选择器）
-    let hideTimer = setTimeout(() => {
-      const uiContainer = document.querySelector(".uiContainer");
-      uiContainer.classList.add("fadeOut");
+    // 🔁 通用函数：5 秒后隐藏 UI
+    function hideUIAfterDelay(delay = 5000) {
+      setTimeout(() => {
+        const uiContainer = document.querySelector(".uiContainer");
+        if (uiContainer) {
+          uiContainer.classList.add("fadeOut");
+        }
+      }, delay);
+    }
+
+    // ✅ 页面加载后隐藏 UI
+    hideUIAfterDelay();
+
+    // ✅ 页面加载后 5 秒自动进入全屏
+    setTimeout(() => {
+      const el = document.documentElement;
+      if (el.requestFullscreen) {
+        el.requestFullscreen();
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+      } else if (el.msRequestFullscreen) {
+        el.msRequestFullscreen();
+      }
     }, 5000);
 
-    // 点击页面重新显示/隐藏 UI
+    // 点击页面切换 UI 显示/隐藏
     document.body.addEventListener("click", () => {
       const uiContainer = document.querySelector(".uiContainer");
-      uiContainer.classList.toggle("fadeOut");
+      if (uiContainer) {
+        uiContainer.classList.toggle("fadeOut");
+      }
     });
 
-    // 阻止颜色选择器触发隐藏行为
+    // 阻止颜色选择器触发隐藏
     const colorPicker = document.querySelector(".color-picker-cyber");
     if (colorPicker) {
       colorPicker.addEventListener("click", (e) => {
@@ -40,11 +62,16 @@ fetch(myRequest, {
 
     // 🔍 放大功能
     let zoomScale = 1;
-    document.querySelector(".handleZoom").addEventListener("click", (e) => {
-      e.stopPropagation();
-      document.body.style.transform = `scale(${zoomScale})`;
-      zoomScale += 0.1;
-    });
+    const zoomBtn = document.querySelector(".handleZoom");
+    if (zoomBtn) {
+      zoomBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        document.body.style.transform = `scale(${zoomScale})`;
+        document.body.style.transformOrigin = "top left";
+        zoomScale += 0.1;
+        if (zoomScale > 2.0) zoomScale = 1.0; // 可选重置缩放
+      });
+    }
 
     // 🔲 全屏功能
     const fullscreenBtn = document.querySelector(".fullscreenBtn");
@@ -63,23 +90,26 @@ fetch(myRequest, {
         }
       });
     }
-    // ❌ 退出全屏按钮事件监听
-const exitFullscreenBtn = document.querySelector(".exitFullscreenBtn");
-if (exitFullscreenBtn) {
-  exitFullscreenBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch((err) => {
-        console.error("退出全屏失败:", err);
+
+    // ❌ 退出全屏按钮
+    const exitFullscreenBtn = document.querySelector(".exitFullscreenBtn");
+    if (exitFullscreenBtn) {
+      exitFullscreenBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch((err) => {
+            console.error("退出全屏失败:", err);
+          });
+        }
+
+        // 重新设置隐藏 UI 定时器
+        hideUIAfterDelay();
       });
     }
-  });
-}
-
 
     // 🎨 动态背景渐变颜色
-    const color1Input = document.getElementById('color1');
-    const color2Input = document.getElementById('color2');
+    const color1Input = document.getElementById("color1");
+    const color2Input = document.getElementById("color2");
 
     function updateBackground() {
       const c1 = color1Input.value;
@@ -89,9 +119,9 @@ if (exitFullscreenBtn) {
     }
 
     if (color1Input && color2Input) {
-      color1Input.addEventListener('input', updateBackground);
-      color2Input.addEventListener('input', updateBackground);
-      updateBackground();
+      color1Input.addEventListener("input", updateBackground);
+      color2Input.addEventListener("input", updateBackground);
+      updateBackground(); // 初始背景设置
     }
   })
   .catch((error) => console.error(error));
@@ -106,6 +136,8 @@ window.addEventListener("scroll", () => {
     nav.classList.remove("shrink");
   }
 });
+
+// 🕒 数字时钟初始化
 function updateTime() {
   const now = new Date();
   const hour = String(now.getHours()).padStart(2, "0");
@@ -129,4 +161,3 @@ document.getElementById("app").innerHTML = `
 
 updateTime();
 setInterval(updateTime, 1000);
-

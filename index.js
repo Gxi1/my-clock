@@ -63,6 +63,19 @@ fetch(myRequest, {
         }
       });
     }
+    // ❌ 退出全屏按钮事件监听
+const exitFullscreenBtn = document.querySelector(".exitFullscreenBtn");
+if (exitFullscreenBtn) {
+  exitFullscreenBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch((err) => {
+        console.error("退出全屏失败:", err);
+      });
+    }
+  });
+}
+
 
     // 🎨 动态背景渐变颜色
     const color1Input = document.getElementById('color1');

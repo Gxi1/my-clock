@@ -90,4 +90,19 @@ window.addEventListener("scroll", () => {
 });
 nav.style.transform = `scale(${1 / zoomScale})`;
 nav.style.transformOrigin = 'top left';
+const zoomContainer = document.querySelector(".zoomContainer");
+const nav = document.querySelector(".navContainer");
+
+let zoomScale = 1;
+document.querySelector(".handleZoom").addEventListener("click", (e) => {
+  e.stopPropagation();
+  zoomScale += 0.1;
+
+  // 缩放内容区域
+  zoomContainer.style.transform = `scale(${zoomScale})`;
+  zoomContainer.style.transformOrigin = "top left";
+
+  // 调整导航栏位置以匹配视觉位置
+  nav.style.transform = `translateY(${(1 - zoomScale) * 20}px)`; // 可调试值
+});
 

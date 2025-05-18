@@ -88,3 +88,6 @@ window.addEventListener("scroll", () => {
     nav.classList.remove("shrink");
   }
 });
+nav.style.transform = `scale(${1 / zoomScale})`;
+nav.style.transformOrigin = 'top left';
+

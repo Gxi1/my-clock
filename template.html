@@ -1,59 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fullscreen Clock</title>
-    <link rel="icon" href="./favicon.ico" />
-    <link rel="stylesheet" href="/index.css" />
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        background: linear-gradient(135deg, #6a11cb, #2575fc);
-      }
-      #mainContainer {
-        transition: transform 0.3s ease;
-        transform-origin: top center;
-      }
-      body.fadeOut .uiContainer {
-        opacity: 0;
-        pointer-events: none;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="mainContainer">
-      <div class="uiContainer">
-        <div class="navContainer">
-          <a class="navbar-item" href="https://suoshuo.top">🧭 摆件首页</a>
-          <a class="navbar-item" href="/">🕘 选择其他桌面时钟</a>
-          <div class="navbar-item handleZoom">🔍 放大</div>
-          <div class="navbar-item fullscreenBtn">🔲 全屏</div>
-          <div class="navbar-item hideNavBtn">❌</div>
-        </div>
-        <div class="color-picker-cyber">
-          <label for="color1"></label>
-          <input type="color" id="color1" value="#6a11cb" />
-          <label for="color2"></label>
-          <input type="color" id="color2" value="#2575fc" />
-        </div>
-      </div>
+<body>
+  <div class="navContainer">
+    <a class="navbar-item" href="https://suoshuo.top">🧭 摆件首页</a>
+    <a class="navbar-item" href="/">🕘 选择其他桌面时钟</a>
+    <div class="navbar-item handleZoom">🔍 放大</div>
+    <div class="navbar-item fullscreenBtn">🔲 全屏</div>
+    <div class="navbar-item hideNavBtn">❌</div>
+  </div>
 
-      <div id="app">
-        <div id="clock">
-          <div class="time-num" id="hour">--</div>
-          <div class="sep">:</div>
-          <div class="time-num" id="minute">--</div>
-          <div class="sep">:</div>
-          <div class="time-num" id="second">--</div>
-        </div>
-      </div>
-
-      <!-- 模板插入位置 -->
-      <section id="templateContainer" class="displayContainer"></section>
-    </div>
-
-    <script src="/index.js"></script>
-  </body>
-</html>
+  <div class="color-picker-cyber">
+    <label for="color1" class="cyber-label"></label>
+    <input type="color" id="color1" value="#6a11cb" class="cyber-color-input" />
+    <label for="color2" class="cyber-label"></label>
+    <input type="color" id="color2" value="#2575fc" class="cyber-color-input" />
+  </div>
+</body>

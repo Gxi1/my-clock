@@ -1,29 +1,21 @@
 var myRequest = new Request("/template.html");
 document.write(`<link rel="stylesheet" href="/index.css" />`);
 
-function hideUIAfterDelay(delay = 5000) {
-  clearTimeout(window._hideUITimer);
-  window._hideUITimer = setTimeout(() => {
-    const uiContainer = document.querySelector(".uiContainer");
-    if (uiContainer) {
-      uiContainer.classList.add("fadeOut");
-    }
-  }, delay);
-}
-
-// 用户触发全屏函数
-function enterFullscreen() {
-  const el = document.documentElement;
-  if (el.requestFullscreen) {
-    el.requestFullscreen();
-  } else if (el.webkitRequestFullscreen) {
-    el.webkitRequestFullscreen();
-  } else if (el.msRequestFullscreen) {
-    el.msRequestFullscreen();
+function updateNavShrink() {
+  const nav = document.querySelector(".navContainer");
+  if (!nav) return;
+  if (window.scrollY > 30) {
+    nav.classList.add("shrink");
   } else {
-    alert("你的浏览器不支持全屏API");
+    nav.classList.remove("shrink");
   }
 }
+
+window.addEventListener("scroll", updateNavShrink);
+document.addEventListener("fullscreenchange", updateNavShrink);
+
+// 页面加载后，立即初始化导航栏状态
+updateNavShrink();
 
 fetch(myRequest, {
   method: "GET",
@@ -40,27 +32,24 @@ fetch(myRequest, {
     section.classList.add("displayContainer");
     document.body.appendChild(section);
 
-    // 5秒后提示用户点击进入全屏
-    setTimeout(() => {
-      if (confirm("点击确定进入全屏模式")) {
-        enterFullscreen();
-      }
+    // 5秒后隐藏 UI（导航栏 + 颜色选择器）
+    let hideTimer = setTimeout(() => {
+      const uiContainer = document.querySelector(".uiContainer");
+      if (uiContainer) uiContainer.classList.add("fadeOut");
     }, 5000);
 
-    // 初始隐藏UI
-    hideUIAfterDelay();
-
-    // 点击页面切换 UI 显示/隐藏
+    // 点击页面重新显示/隐藏 UI
     document.body.addEventListener("click", () => {
       const uiContainer = document.querySelector(".uiContainer");
-      if (!uiContainer) return;
-      uiContainer.classList.toggle("fadeOut");
+      if (uiContainer) uiContainer.classList.toggle("fadeOut");
     });
 
-    // 阻止颜色选择器点击事件冒泡
+    // 阻止颜色选择器触发隐藏行为
     const colorPicker = document.querySelector(".color-picker-cyber");
     if (colorPicker) {
-      colorPicker.addEventListener("click", (e) => e.stopPropagation());
+      colorPicker.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
     }
 
     // 放大功能
@@ -76,7 +65,20 @@ fetch(myRequest, {
       });
     }
 
-    // 全屏按钮事件
+    // 全屏功能
+    function enterFullscreen() {
+      const el = document.documentElement;
+      if (el.requestFullscreen) {
+        el.requestFullscreen();
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+      } else if (el.msRequestFullscreen) {
+        el.msRequestFullscreen();
+      } else {
+        alert("你的浏览器不支持全屏API");
+      }
+    }
+
     const fullscreenBtn = document.querySelector(".fullscreenBtn");
     if (fullscreenBtn) {
       fullscreenBtn.addEventListener("click", (e) => {
@@ -85,32 +87,17 @@ fetch(myRequest, {
       });
     }
 
-    // 退出全屏按钮事件
     const exitFullscreenBtn = document.querySelector(".exitFullscreenBtn");
     if (exitFullscreenBtn) {
       exitFullscreenBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         if (document.fullscreenElement) {
-          document.exitFullscreen()
-            .catch((err) => {
-              console.error("退出全屏失败:", err);
-            })
-            .finally(() => {
-              hideUIAfterDelay();
-            });
-        } else {
-          hideUIAfterDelay();
+          document.exitFullscreen().catch((err) => {
+            console.error("退出全屏失败:", err);
+          });
         }
       });
     }
-
-    // 监听全屏状态变化，退出全屏时重新启动隐藏UI计时器
-    document.addEventListener("fullscreenchange", () => {
-      if (!document.fullscreenElement) {
-        // 退出全屏了
-        hideUIAfterDelay();
-      }
-    });
 
     // 动态背景渐变颜色
     const color1Input = document.getElementById("color1");
@@ -131,16 +118,6 @@ fetch(myRequest, {
     }
   })
   .catch((error) => console.error(error));
-
-window.addEventListener("scroll", () => {
-  const nav = document.querySelector(".navContainer");
-  if (!nav) return;
-  if (window.scrollY > 30) {
-    nav.classList.add("shrink");
-  } else {
-    nav.classList.remove("shrink");
-  }
-});
 
 function updateTime() {
   const now = new Date();

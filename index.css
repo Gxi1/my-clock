@@ -221,13 +221,5 @@ body .flip .item .inn[data-v-250ac99c] {
   background-color: var(--flip-bg-color) !important;
   color: var(--flip-text-color) !important;
 }
-.uiContainer {
-  transition: opacity 0.5s ease;
-}
-
-.uiContainer.fadeOut {
-  opacity: 0;
-  pointer-events: none;
-}
 
 

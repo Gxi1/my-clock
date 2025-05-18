@@ -13,10 +13,47 @@ fetch(myRequest, {
     return response.text();
   })
   .then(function (myJson) {
+    // 创建主容器
+    const mainContainer = document.createElement("div");
+    mainContainer.id = "mainContainer";
+    document.body.appendChild(mainContainer);
+
+    // 创建 UI 和 display 容器
     var section = document.createElement("section");
     section.innerHTML = myJson;
     section.classList.add("displayContainer");
-    document.body.appendChild(section);
+    mainContainer.appendChild(section);
+
+    // 创建时钟容器
+    const appDiv = document.createElement("div");
+    appDiv.id = "app";
+    mainContainer.appendChild(appDiv);
+
+    // 插入时钟内容
+    appDiv.innerHTML = `
+      <div id="clock">
+        <div class="time-num" id="hour">--</div>
+        <div class="sep">:</div>
+        <div class="time-num" id="minute">--</div>
+        <div class="sep">:</div>
+        <div class="time-num" id="second">--</div>
+      </div>
+    `;
+
+    // 更新时钟
+    function updateTime() {
+      const now = new Date();
+      const hour = String(now.getHours()).padStart(2, "0");
+      const minute = String(now.getMinutes()).padStart(2, "0");
+      const second = String(now.getSeconds()).padStart(2, "0");
+
+      document.getElementById("hour").textContent = hour;
+      document.getElementById("minute").textContent = minute;
+      document.getElementById("second").textContent = second;
+    }
+
+    updateTime();
+    setInterval(updateTime, 1000);
 
     // 🚀 5秒后隐藏 UI（导航栏 + 颜色选择器）
     let hideTimer = setTimeout(() => {
@@ -38,13 +75,20 @@ fetch(myRequest, {
       });
     }
 
-    // 🔍 放大功能
+    // 🔍 放大功能：放大 mainContainer
     let zoomScale = 1;
-    document.querySelector(".handleZoom").addEventListener("click", (e) => {
-      e.stopPropagation();
-      document.body.style.transform = `scale(${zoomScale})`;
-      zoomScale += 0.1;
-    });
+    const zoomBtn = document.querySelector(".handleZoom");
+    if (zoomBtn) {
+      zoomBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const mainContainer = document.getElementById("mainContainer");
+        if (mainContainer) {
+          mainContainer.style.transform = `scale(${zoomScale})`;
+          mainContainer.style.transformOrigin = "top center";
+          zoomScale += 0.1;
+        }
+      });
+    }
 
     // 🔲 全屏功能
     const fullscreenBtn = document.querySelector(".fullscreenBtn");
@@ -93,27 +137,3 @@ window.addEventListener("scroll", () => {
     nav.classList.remove("shrink");
   }
 });
-function updateTime() {
-  const now = new Date();
-  const hour = String(now.getHours()).padStart(2, "0");
-  const minute = String(now.getMinutes()).padStart(2, "0");
-  const second = String(now.getSeconds()).padStart(2, "0");
-
-  document.getElementById("hour").textContent = hour;
-  document.getElementById("minute").textContent = minute;
-  document.getElementById("second").textContent = second;
-}
-
-document.getElementById("app").innerHTML = `
-  <div id="clock">
-    <div class="time-num" id="hour">--</div>
-    <div class="sep">:</div>
-    <div class="time-num" id="minute">--</div>
-    <div class="sep">:</div>
-    <div class="time-num" id="second">--</div>
-  </div>
-`;
-
-updateTime();
-setInterval(updateTime, 1000);
-

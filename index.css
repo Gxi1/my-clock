@@ -229,5 +229,9 @@ body .flip .item .inn[data-v-250ac99c] {
   opacity: 0;
   pointer-events: none;
 }
+#mainContainer {
+  transition: transform 0.3s ease;
+  width: 100%;
+}
 
 

@@ -1,8 +1,7 @@
 var myRequest = new Request("/template.html");
+
+// 加载样式表
 document.write(`<link rel="stylesheet" href="/index.css" />`);
-// document.write(
-//   `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />`
-// );
 
 fetch(myRequest, {
   method: "GET",
@@ -21,27 +20,39 @@ fetch(myRequest, {
     section.classList.add("displayContainer");
     document.body.appendChild(section);
 
-    // 5秒后隐藏导航栏
+    // 自动隐藏导航栏（5秒后）
     let hideTimer = setTimeout(() => {
-      document.querySelector(".navContainer").classList.add("fadeOut");
+      const nav = document.querySelector(".navContainer");
+      if (nav) nav.classList.add("fadeOut");
     }, 5000);
 
-    // 点击切换导航栏显示隐藏
-    document.querySelector("body").addEventListener("click", () => {
-      const navContainer = document.querySelector(".navContainer");
-      navContainer.classList.toggle("fadeOut");
+    // 点击切换导航栏显示/隐藏
+    document.body.addEventListener("click", () => {
+      const nav = document.querySelector(".navContainer");
+      if (nav) nav.classList.toggle("fadeOut");
     });
 
-    // 放大功能
+    // 放大功能（缩放 zoomContainer，导航栏反向缩放保持原样）
     let zoomScale = 1;
     document.querySelector(".handleZoom").addEventListener("click", (e) => {
       e.stopPropagation();
-      const bodyDom = document.querySelector("body");
-      bodyDom.style.transform = `scale(${zoomScale})`;
+      const zoomContainer = document.querySelector(".zoomContainer");
+      const nav = document.querySelector(".navContainer");
+
       zoomScale += 0.1;
+
+      if (zoomContainer) {
+        zoomContainer.style.transform = `scale(${zoomScale})`;
+        zoomContainer.style.transformOrigin = "top left";
+      }
+
+      if (nav) {
+        nav.style.transform = `scale(${1 / zoomScale})`;
+        nav.style.transformOrigin = "top left";
+      }
     });
 
-    // 全屏按钮绑定
+    // 全屏功能
     const fullscreenBtn = document.querySelector(".fullscreenBtn");
     if (fullscreenBtn) {
       fullscreenBtn.addEventListener("click", (e) => {
@@ -59,26 +70,26 @@ fetch(myRequest, {
       });
     }
 
-    // --- 新增：颜色选择器动态背景功能 ---
-    const color1Input = document.getElementById('color1');
-    const color2Input = document.getElementById('color2');
+    // 颜色选择器：动态渐变背景
+    const color1Input = document.getElementById("color1");
+    const color2Input = document.getElementById("color2");
 
     function updateBackground() {
       const c1 = color1Input.value;
       const c2 = color2Input.value;
       const gradient = `linear-gradient(135deg, ${c1} 0%, ${c2} 100%)`;
-      // 直接修改body背景或根元素CSS变量
       document.body.style.background = gradient;
     }
 
     if (color1Input && color2Input) {
-      color1Input.addEventListener('input', updateBackground);
-      color2Input.addEventListener('input', updateBackground);
-      updateBackground(); // 初始化执行一次
+      color1Input.addEventListener("input", updateBackground);
+      color2Input.addEventListener("input", updateBackground);
+      updateBackground(); // 初始调用一次
     }
   })
-  .catch((error) => console.error(error));
+  .catch((error) => console.error("加载模板失败：", error));
 
+// 滚动时导航栏缩小
 window.addEventListener("scroll", () => {
   const nav = document.querySelector(".navContainer");
   if (!nav) return;
@@ -88,21 +99,3 @@ window.addEventListener("scroll", () => {
     nav.classList.remove("shrink");
   }
 });
-nav.style.transform = `scale(${1 / zoomScale})`;
-nav.style.transformOrigin = 'top left';
-const zoomContainer = document.querySelector(".zoomContainer");
-const nav = document.querySelector(".navContainer");
-
-let zoomScale = 1;
-document.querySelector(".handleZoom").addEventListener("click", (e) => {
-  e.stopPropagation();
-  zoomScale += 0.1;
-
-  // 缩放内容区域
-  zoomContainer.style.transform = `scale(${zoomScale})`;
-  zoomContainer.style.transformOrigin = "top left";
-
-  // 调整导航栏位置以匹配视觉位置
-  nav.style.transform = `translateY(${(1 - zoomScale) * 20}px)`; // 可调试值
-});
-
